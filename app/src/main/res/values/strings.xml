@@ -1,0 +1,13 @@
+<resources>
+    <string name="app_name">WaterApp</string>
+    <string name="order">Order</string>
+    <string name="todo">TODO</string>
+    <string name="title_activity_main">Basket</string>
+    <string name="confirm">confirm</string>
+    <string name="devise">Device</string>
+    <string-array name="products">
+        <item>Mirinda</item>
+        <item>Coca-Cola</item>
+        <item>Water</item>
+    </string-array>
+</resources>
