@@ -15,6 +15,8 @@ import android.widget.Toast;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.google.android.material.snackbar.Snackbar;
+
 import static semen.sereda.waterapp.MainActivity.productClassArrayList;
 
 public class ProductActivity extends AppCompatActivity implements View.OnClickListener, AdapterView.OnItemSelectedListener {
@@ -24,6 +26,8 @@ public class ProductActivity extends AppCompatActivity implements View.OnClickLi
     private Button confirm;
     private String selected;
     private ActionBar actionBar;
+
+    private int count = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -37,6 +41,7 @@ public class ProductActivity extends AppCompatActivity implements View.OnClickLi
         imageView = findViewById(R.id.imageView);
         editText = findViewById(R.id.editTextNumberDecimal);
         confirm = findViewById(R.id.confirm);
+
         ImageButton imageButton1 = findViewById(R.id.buttonplus);
         ImageButton imageButton2 = findViewById(R.id.buttonminus);
 
@@ -88,23 +93,36 @@ public class ProductActivity extends AppCompatActivity implements View.OnClickLi
     public void onClick(View v) {
         int i = v.getId();
         if (i == R.id.buttonplus) {
+            if (Integer.parseInt(editText.getText().toString()) < 1000000)
+                count = Integer.parseInt(editText.getText().toString()) + 1;
+            else count = 1000000;
             if (!editText.getText().toString().isEmpty()) {
-                editText.setText(String.valueOf(Integer.parseInt(editText.getText().toString()) + 1));
+                editText.setText(String.valueOf(count));
             } else editText.setText(String.valueOf(1));
 
         } else if (i == R.id.buttonminus) {
+            if (Integer.parseInt(editText.getText().toString()) > 1)
+                count = Integer.parseInt(editText.getText().toString()) - 1;
             if (!editText.getText().toString().isEmpty()
                     && !editText.getText().toString().equals("0")) {
-                editText.setText(String.valueOf(Integer.parseInt(
-                        editText.getText().toString()) - 1));
+                editText.setText(String.valueOf(count));
             }
         } else if (i == R.id.confirm) {
             if (!editText.getText().toString().isEmpty() && !editText.getText().toString().equals("0")) {
-                ProductClass product = new ProductClass(selected, Integer.parseInt(editText.getText().toString()));
+                if (Integer.parseInt(editText.getText().toString()) > 1000000) {
+                    count = 1000000;
+                    editText.setText(String.valueOf(count));
+                    Toast.makeText(getApplicationContext(), "Превышен лимит", Toast.LENGTH_SHORT).show();
+                    return;
+                } else count = Integer.parseInt(editText.getText().toString());
+                ProductClass product = new ProductClass(selected, count);
                 boolean is_found_equal_product = false;
                 for (int j = 0; j < productClassArrayList.size(); j++) {
                     if (productClassArrayList.get(j).getName().equals(product.getName())) {
-                        productClassArrayList.get(j).setCount(productClassArrayList.get(j).getCount() + product.getCount());
+                        int temp_count = productClassArrayList.get(j).getCount() + product.getCount();
+                        if (productClassArrayList.get(j).getCount() + product.getCount() >= 1000000)
+                            temp_count = 1000000;
+                        productClassArrayList.get(j).setCount(temp_count);
                         is_found_equal_product = true;
                         break;
                     }
@@ -112,13 +130,17 @@ public class ProductActivity extends AppCompatActivity implements View.OnClickLi
 
                 if (!is_found_equal_product) {
                     productClassArrayList.add(product);
-                } //else productClassArrayList.get(index).setCount(prevCount);
+                }
 
                 actionBar.setDisplayHomeAsUpEnabled(false);
                 Toast.makeText(getApplicationContext(), "Товар добавлен", Toast.LENGTH_SHORT).show();
                 super.onBackPressed();
             } else {
-                Toast.makeText(getApplicationContext(), "Ошибка ввода", Toast.LENGTH_SHORT).show();
+//                Toast.makeText(getApplicationContext(), "Ошибка ввода", Toast.LENGTH_SHORT).show();
+                Snackbar snackbar = Snackbar.make(findViewById(R.id.confirm), "Ошибка ввода", Snackbar.LENGTH_SHORT);
+                View view = snackbar.getView();
+                view.setBackgroundColor(getResources().getColor(R.color.colorAccent));
+                snackbar.show();
             }
         }
     }
